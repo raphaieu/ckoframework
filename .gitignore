@@ -1,0 +1,47 @@
+# Dependências
+node_modules/
+vendor/
+composer.lock
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.production
+
+# Builds
+frontend/dist/
+frontend/build/
+
+# Logs
+*.log
+logs/
+
+# Banco de dados
+*.sqlite
+*.sqlite3
+api/database/*.sqlite
+
+# Cache
+.cache/
+.parcel-cache/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# Testes
+coverage/
+.phpunit.result.cache
+
+# Temporários
+tmp/
+temp/

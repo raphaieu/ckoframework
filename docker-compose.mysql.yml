@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Substituir SQLite por MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: cko-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=cko_framework
+      - MYSQL_USER=cko_user
+      - MYSQL_PASSWORD=cko_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app-network
+    user: "999:999"
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Atualizar API para usar MySQL
+  api:
+    environment:
+      - APP_ENV=development
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=cko_framework
+      - DB_USERNAME=cko_user
+      - DB_PASSWORD=cko_password
+    depends_on:
+      - mysql
+      - frontend
+
+volumes:
+  mysql_data:
+    driver: local

@@ -1,0 +1,124 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Testes do Backend (PHP)
+  test-backend:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_cko_framework
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, pdo_sqlite, gd, zip
+        coverage: xdebug
+    
+    - name: Validate composer.json
+      run: composer validate --strict
+    
+    - name: Cache Composer packages
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+    
+    - name: Install dependencies
+      run: |
+        cd api
+        composer install --prefer-dist --no-progress
+    
+    - name: Run PHP CS
+      run: |
+        cd api
+        composer cs
+    
+    - name: Run PHPStan
+      run: |
+        cd api
+        composer stan
+    
+    - name: Run tests
+      run: |
+        cd api
+        composer test
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: test_cko_framework
+        DB_USERNAME: root
+        DB_PASSWORD: root
+
+  # Testes do Frontend (Vue)
+  test-frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Run linter
+      run: |
+        cd frontend
+        npm run lint
+    
+    - name: Run tests (se existirem)
+      run: |
+        cd frontend
+        npm test --if-present
+    
+    - name: Build for production
+      run: |
+        cd frontend
+        npm run build
+
+  # Build e Deploy (apenas na main)
+  deploy:
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build Docker images
+      run: |
+        docker build -t cko-api ./docker/php
+        docker build -t cko-frontend ./docker/nginx
+    
+    - name: Deploy to production
+      run: |
+        echo "Deploy realizado com sucesso!"
+        # Aqui você pode adicionar comandos para deploy real
+        # como rsync, docker push, ou deploy para seu servidor
