@@ -41,6 +41,11 @@ const routes = [
     name: 'Settings',
     component: () => import('../views/Settings.vue')
   },
+  {
+    path: '/ai',
+    name: 'AI',
+    component: () => import('../views/AI.vue')
+  },
   // Rotas legadas (manter para compatibilidade)
   {
     path: '/users',

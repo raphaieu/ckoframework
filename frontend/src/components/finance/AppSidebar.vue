@@ -75,6 +75,26 @@
           </div>
         </div>
 
+        <!-- AI Section -->
+        <div class="pt-4">
+          <h3 class="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Inteligência Artificial
+          </h3>
+          <div class="mt-2 space-y-1">
+            <router-link 
+              to="/ai" 
+              class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              :class="isActive('/ai') ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'"
+            >
+              <Bot class="h-5 w-5" />
+              <span>AI Financeiro</span>
+              <Badge variant="secondary" class="ml-auto text-xs">
+                Beta
+              </Badge>
+            </router-link>
+          </div>
+        </div>
+
         <!-- Tools Section -->
         <div class="pt-4">
           <h3 class="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -144,7 +164,8 @@ import {
   Globe, 
   Bitcoin, 
   Upload, 
-  Settings 
+  Settings,
+  Bot
 } from 'lucide-vue-next'
 import { useCashflowStore } from '@/stores/cashflow'
 import { useTradesStore } from '@/stores/trades'

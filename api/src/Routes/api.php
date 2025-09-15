@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\UserController;
+use App\Controllers\AIController;
 use Slim\Routing\RouteCollectorProxy;
 
 // Grupo de rotas da API
@@ -24,6 +25,25 @@ $app->group('/api', function (RouteCollectorProxy $group) {
                 ->withStatus(200);
         });
         $group->options('/{id}', function ($request, $response) {
+            return $response
+                ->withHeader('Access-Control-Allow-Origin', '*')
+                ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+                ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS')
+                ->withHeader('Access-Control-Max-Age', '86400')
+                ->withStatus(200);
+        });
+    });
+
+    // Rotas de AI
+    $group->group('/ai', function (RouteCollectorProxy $group) {
+        $group->post('/analyze', [AIController::class, 'analyze']);
+        $group->get('/cashflow-insights', [AIController::class, 'cashflowInsights']);
+        $group->get('/trading-analysis', [AIController::class, 'tradingAnalysis']);
+        $group->get('/portfolio-analysis', [AIController::class, 'portfolioAnalysis']);
+        $group->get('/status', [AIController::class, 'status']);
+        
+        // Rotas OPTIONS para CORS
+        $group->options('/analyze', function ($request, $response) {
             return $response
                 ->withHeader('Access-Control-Allow-Origin', '*')
                 ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
